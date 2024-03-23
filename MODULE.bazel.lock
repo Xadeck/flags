@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "9b0f9f551135462cbebdfa418f6246f1d081631f54b9035ff961874a0b5dabf3",
+  "moduleFileHash": "5816f22bb2011a970423d8d004fdf5342cb858bf02e15b2f9202f3d65bd5acaf",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -17,10 +17,10 @@
   },
   "moduleDepGraph": {
     "<root>": {
-      "name": "",
+      "name": "xdk_name",
       "version": "",
       "key": "<root>",
-      "repoName": "",
+      "repoName": "xdk_name",
       "executionPlatformsToRegister": [],
       "toolchainsToRegister": [],
       "extensionUsages": [

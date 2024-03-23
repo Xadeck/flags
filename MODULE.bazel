@@ -1,3 +1,5 @@
+module(name = "xdk_name")
+
 bazel_dep(name = "googletest", version = "1.14.0.bcr.1")
 
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
