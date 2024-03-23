@@ -1,4 +1,4 @@
-module(name = "xdk_name")
+module(name = "xdk_flags")
 
 bazel_dep(name = "googletest", version = "1.14.0.bcr.1")
 
