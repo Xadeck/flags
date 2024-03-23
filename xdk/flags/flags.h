@@ -132,9 +132,12 @@ class Flag final : private FlagInfo {
   static constexpr std::string_view kA{A.array.data(), A.array.size() - 1};
 };
 
-template <typename T>
+template <typename F>
 class Flags {
  public:
+  template <FlagInfo::String L, typename T, FlagInfo::String A = L>
+  using Flag = ::xdk::Flag<L, T, A>;
+
   static auto Parse(int argc, char** argv, bool unknown_are_errors = true) {
     return Parse(argc, const_cast<const char**>(argv), unknown_are_errors);
   }
@@ -145,42 +148,42 @@ class Flags {
   }
 
   static auto Parse(int argc, const char** argv, bool unknown_are_errors = true) {
-    T                        t;
+    F                        f;
     std::vector<const char*> args;
     FlagInfo::Errors         errs;
-    Parse(argc, argv, t, args, errs, unknown_are_errors);
-    return std::make_tuple(std::move(t), std::move(args), std::move(errs));
+    Parse(argc, argv, f, args, errs, unknown_are_errors);
+    return std::make_tuple(std::move(f), std::move(args), std::move(errs));
   }
 
   static auto Parse(std::vector<const char*>& old_args, FlagInfo::Errors& errs) {
-    T                        t;
+    F                        f;
     std::vector<const char*> new_args;
-    Parse(static_cast<int>(old_args.size()), old_args.data(), t, new_args, errs);
+    Parse(static_cast<int>(old_args.size()), old_args.data(), f, new_args, errs);
     new_args.swap(old_args);
-    return t;
+    return f;
   }
 
   std::vector<const FlagInfo*> FlagInfos() const {
-    const char* t_begin = reinterpret_cast<const char*>(this);
-    const char* t_end   = reinterpret_cast<const char*>(this) + sizeof(T);
+    const char* f_begin = reinterpret_cast<const char*>(this);
+    const char* f_end   = reinterpret_cast<const char*>(this) + sizeof(F);
 
     std::vector<const FlagInfo*> infos;
-    for (const char* pt = t_begin; pt < t_end; pt += infos.back()->size) {
-      infos.push_back(reinterpret_cast<const FlagInfo*>(pt));
+    for (const char* pf = f_begin; pf < f_end; pf += infos.back()->size) {
+      infos.push_back(reinterpret_cast<const FlagInfo*>(pf));
     }
     return infos;
   }
 
  private:
-  static void Parse(int argc, const char** argv, T& t, std::vector<const char*>& args,
+  static void Parse(int argc, const char** argv, F& f, std::vector<const char*>& args,
                     FlagInfo::Errors& errs, bool unknown_are_errors = true) {
-    static_assert(sizeof(Flags<T>) == 1);
-    static_assert(sizeof(T) > 1);
+    static_assert(sizeof(Flags<F>) == 1);
+    static_assert(sizeof(F) > 1);
 
     static constexpr std::string_view kDashDash = "--";
 
-    char* t_begin = reinterpret_cast<char*>(&t);
-    char* t_end   = reinterpret_cast<char*>(&t) + sizeof(T);
+    char* f_begin = reinterpret_cast<char*>(&f);
+    char* f_end   = reinterpret_cast<char*>(&f) + sizeof(F);
     int   pos     = 0;
     while (pos < argc) {
       const char*                    arg    = argv[pos];
@@ -188,8 +191,8 @@ class Flags {
       int                            parsed = 0;
       std::optional<FlagInfo::Error> error  = std::nullopt;
       if (kDashDash == arg) break;
-      for (char* pt = t_begin; !parsed && pt < t_end;) {
-        auto* info = reinterpret_cast<FlagInfo*>(pt);
+      for (char* pf = f_begin; !parsed && pf < f_end;) {
+        auto* info = reinterpret_cast<FlagInfo*>(pf);
         switch (info->parse(arg, val)) {
           using enum FlagInfo::ParseStatus;
           case kNoneParsed:   break;
@@ -198,7 +201,7 @@ class Flags {
           case kParseMissing: parsed = 1, error = {.pos = pos, .arg = arg, .val = nullptr}; break;
           case kParseFailure: parsed = 2, error = {.pos = pos, .arg = arg, .val = val}; break;
         }
-        pt += info->size;
+        pf += info->size;
       }
       if (error.has_value()) errs.push_back(std::move(*error));
       if (parsed == 0) {

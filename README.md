@@ -2,7 +2,7 @@
 
 An example is worth a thousand words:
 
-```c++ example
+```c++ example.cc
 #include "xdk/flags/flags.h"
 
 namespace {
@@ -16,9 +16,9 @@ Runs a server on the given port (default is 8080).
 }
 
 int main(int argc, char** argv) {
-  struct Flags : xdk::Flags<MyFlags> {
-    Flag<"--port", int>       port{8080};
-    Flag<"--help, bool, "-h"> help;
+  struct Flags : xdk::Flags<Flags> {
+    Flag<"--port", int>        port{8080};
+    Flag<"--help", bool, "-h"> help;
   };
 
   auto [flags, args, errors] = Flags::Parse(argc, argv);
