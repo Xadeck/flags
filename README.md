@@ -1,6 +1,11 @@
-# Minimalist C++ library for command line flags parsing
+# Minimalist C++20 library for command line flags parsing
 
-An example is worth a thousand words:
+If you need to parse command line arguments in your project, and you want a
+simple syntax and lightweight library, and you can use C++20 in your project,
+then this project ma
+
+An example is worth a thousand words. Here is the syntax for defining and
+parsing flags.
 
 ```c++ example.cc
 #include "xdk/flags/flags.h"
@@ -53,7 +58,7 @@ string.
 The following typical features for command line flags are supported:
 
 * Supports long/short forms for flags e.g. `--long/-l` via aliases [^1].
-* Supports repeated flags.
+* Supports repeated flags, e.g. `-l one -l two -l three` as a `{"one", "two", "three"}`.
 * Supports optional flags.
 * Supports default flag values.
 * Supports `--` to stop flag parsing
@@ -105,7 +110,26 @@ strings above, this also allows for localized error reporting.
 
 ## Installation
 
-TODO:
+If you are using [Bazel](http://bazel.build), add the following to your
+`MODULE.bzl`. Make sure to update to [the latest
+commit](https://github.com/Xadeck/flags/commits/main).
+
+```bzl
+bazel_dep(name = "xdk_flags")
+git_override(
+    module_name = "xdk_flags",
+    commit = "34a5c32ae3a4db2ee956ec5a1bfa2d1c46751d8a",
+    remote = "https://github.com/Xadeck/flags.git",
+)
+```
+
+You also need to enable C++20 for compilation. Unless you are comfortable
+setting a toolchain, the easiest way to do so is to add the following to your
+`.bazelrc`:
+
+```bzl
+build --cxxopt=-std=c++20
+```
 
 ## Usage
 
