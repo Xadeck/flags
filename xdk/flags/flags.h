@@ -6,6 +6,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string_view>
 #include <typeinfo>
@@ -67,32 +68,32 @@ struct FlagInfo {
   // For parsing
   std::size_t                                          size = 0;
   std::function<ParseStatus(const char*, const char*)> parse;
-
-  template <typename T>
-  bool ParseValue(const char* arg, T& value) {
-    std::istringstream stream(arg);
-    stream >> value;
-    return !stream.fail();
-  }
-
-  template <>
-  bool ParseValue(const char* arg, char& value) {
-    value = arg[0];
-    return arg[1] == 0;
-  }
-
-  template <typename T>
-  bool ParseValue(const char* arg, std::vector<T>& value) {
-    value.emplace_back();
-    return ParseValue(arg, value.back());
-  }
-
-  template <typename T>
-  bool ParseValue(const char* arg, std::optional<T>& value) {
-    value.emplace();
-    return ParseValue(arg, *value);
-  }
 };
+
+template <typename T>
+bool ParseValue(const char* arg, T& value) {
+  std::istringstream stream(arg);
+  stream >> value;
+  return !stream.fail();
+}
+
+template <>
+bool ParseValue(const char* arg, char& value) {
+  value = arg[0];
+  return arg[1] == 0;
+}
+
+template <typename T>
+bool ParseValue(const char* arg, std::vector<T>& value) {
+  value.emplace_back();
+  return ParseValue(arg, value.back());
+}
+
+template <typename T>
+bool ParseValue(const char* arg, std::optional<T>& value) {
+  value.emplace();
+  return ParseValue(arg, *value);
+}
 
 template <FlagInfo::String L, typename T, FlagInfo::String A = L>
 class Flag final : private FlagInfo {

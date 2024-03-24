@@ -1,10 +1,5 @@
 common --experimental_enable_bzlmod
-build --cxxopt=-std=c++2a
-build --cxxopt=-fdiagnostics-color=always
-build --cxxopt=-fdiagnostics-format=vi
-build --cxxopt=-fdiagnostics-fixit-info
-build --cxxopt=-fdiagnostics-fixit-info
-build --cxxopt=-fdiagnostics-show-category=none
+build --cxxopt=-std=c++20
 build --cxxopt=-Werror
 
 test --test_output=all --nocache_test_results
