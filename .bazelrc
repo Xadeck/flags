@@ -1,5 +1,5 @@
 common --experimental_enable_bzlmod
-build --cxxopt=-std=c++20
+build --cxxopt=-std=c++2a
 build --cxxopt=-Werror
 
 test --test_output=all --nocache_test_results
