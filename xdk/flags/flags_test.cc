@@ -91,7 +91,6 @@ TEST(FlagsTest, SimpleDemo) {
   ASSERT_TRUE(flags.verbose);
   ASSERT_THAT(flags.fruits.value, ElementsAre("orange", "banana"));
   ASSERT_THAT(flags.drink.value, Optional(StrEq("wine")));
-  ASSERT_THAT(flags.drink.value, Optional(StrEq("wine")));
   ASSERT_THAT(flags.center->x, Eq(1));
   ASSERT_THAT(flags.center->y, Eq(2));
   ASSERT_THAT(flags.separator, Eq('.'));
