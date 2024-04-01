@@ -1,3 +1,7 @@
+#include <cstdlib>
+#include <iostream>
+#include <string_view>
+
 #include "xdk/flags/flags.h"
 
 namespace {

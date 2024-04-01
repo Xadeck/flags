@@ -25,19 +25,20 @@ struct FlagInfo {
   };
 
   struct Errors : public std::vector<Error> {
-    operator bool() const {
+    operator bool() const {  // NOLINT
       return !empty();
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Errors& errors) {
       os << '\n';
       for (const auto& error : errors) {
-        if (error.val == Error::kUnknown)
+        if (error.val == Error::kUnknown) {
           os << "Unknown flag `" << error.arg << '`';
-        else if (error.val == nullptr)
+        } else if (error.val == nullptr) {
           os << "Missing value for flag `" << error.arg << '`';
-        else
+        } else {
           os << "Invalid value " << std::quoted(error.val) << " for flag `" << error.arg << '`';
+        }
         os << " at index " << error.pos << '\n';
       }
       return os;
@@ -51,12 +52,12 @@ struct FlagInfo {
 
   template <size_t N>
   struct String {
-    constexpr String(const char (&str)[N]) {  // N > 0 guaranteed
+    constexpr String(const char (&str)[N]) {  // N > 0 guaranteed NOLINT
       std::copy_n(str, N, array.data());
     }
     std::array<char, N> array;
 
-    constexpr bool IsValid() const {
+    [[nodiscard]] constexpr bool IsValid() const {
       if (N == 1 || array[0] != '-') return false;  // empty or not starting with -
       if (N == 3 && array[1] == '-') return false;  // equal to --
       return true;
@@ -78,7 +79,7 @@ bool ParseValue(const char* arg, T& value) {
 }
 
 template <>
-bool ParseValue(const char* arg, char& value) {
+inline bool ParseValue(const char* arg, char& value) {
   value = arg[0];
   return arg[1] == 0;
 }
@@ -102,7 +103,7 @@ class Flag final : private FlagInfo {
 
  public:
   template <typename... Args>
-  Flag(Args&&... args) : value(std::forward<Args>(args)...) {
+  explicit Flag(Args&&... args) : value(std::forward<Args>(args)...) {
     size  = sizeof(*this);
     parse = [this](const char* name, const char* value) {
       using enum ParseStatus;
@@ -119,7 +120,7 @@ class Flag final : private FlagInfo {
     alias = kA;
   }
 
-  operator const T&() const {
+  operator const T&() const {  // NOLINT
     return value;
   }
   const T* operator->() const {
@@ -164,7 +165,7 @@ class Flags {
     return f;
   }
 
-  std::vector<const FlagInfo*> FlagInfos() const {
+  [[nodiscard]] std::vector<const FlagInfo*> FlagInfos() const {
     const char* f_begin = reinterpret_cast<const char*>(this);
     const char* f_end   = reinterpret_cast<const char*>(this) + sizeof(F);
 
@@ -204,7 +205,7 @@ class Flags {
         }
         pf += info->size;
       }
-      if (error.has_value()) errs.push_back(std::move(*error));
+      if (error.has_value()) errs.push_back(*error);
       if (parsed == 0) {
         if (arg[0] == '-' && unknown_are_errors) {
           errs.push_back({.pos = pos, .arg = arg});
