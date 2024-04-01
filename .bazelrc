@@ -1,4 +1,4 @@
-common --experimental_enable_bzlmod
+common --enable_bzlmod
 build --cxxopt=-std=c++2a
 build --cxxopt=-Werror
 
