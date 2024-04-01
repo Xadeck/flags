@@ -55,7 +55,7 @@ struct FlagInfo {
 
   template <size_t N>
   struct String {
-    constexpr String(const char (&str)[N]) {  // N > 0 guaranteed NOLINT
+    constexpr String(const char (&str)[N]) {  //  NOLINT cppcheck-suppress noExplicitConstructor
       std::copy_n(str, N, array.data());
     }
     std::array<char, N> array;
@@ -187,17 +187,17 @@ class Flags {
 
     static constexpr std::string_view kDashDash = "--";
 
-    char* f_begin = reinterpret_cast<char*>(&f);
-    char* f_end   = reinterpret_cast<char*>(&f) + sizeof(F);
-    int   pos     = 0;
+    const char* f_begin = reinterpret_cast<const char*>(&f);
+    const char* f_end   = reinterpret_cast<const char*>(&f) + sizeof(F);
+    int         pos     = 0;
     while (pos < argc) {
       const char*                    arg    = argv[pos];
       const char*                    val    = pos + 1 < argc ? argv[pos + 1] : nullptr;
       int                            parsed = 0;
       std::optional<FlagInfo::Error> error  = std::nullopt;
       if (kDashDash == arg) break;
-      for (char* pf = f_begin; !parsed && pf < f_end;) {
-        auto* info = reinterpret_cast<FlagInfo*>(pf);
+      for (const char* pf = f_begin; !parsed && pf < f_end;) {
+        const auto* info = reinterpret_cast<const FlagInfo*>(pf);
         switch (info->parse(arg, val)) {
           using enum FlagInfo::ParseStatus;
           case kNoneParsed:   break;
