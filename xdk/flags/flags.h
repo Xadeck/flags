@@ -1,6 +1,7 @@
 #ifndef XDK_FLAGS_FLAGS_H_
 #define XDK_FLAGS_FLAGS_H_
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <functional>
@@ -10,6 +11,8 @@
 #include <sstream>
 #include <string_view>
 #include <typeinfo>
+#include <utility>
+#include <vector>
 
 namespace xdk {
 
