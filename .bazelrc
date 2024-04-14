@@ -4,3 +4,12 @@ build --cxxopt=-Werror
 
 test --test_output=all --nocache_test_results
 
+common --enable_platform_specific_config
+build:linux --sandbox_add_mount_pair=/tmp
+build:macos --sandbox_add_mount_pair=/var/tmp
+build:windows --sandbox_add_mount_pair=C:\Temp
+
+build:linux_arm64 --platforms @zig_sdk//platform:linux_arm64
+build:linux_arm64 --extra_toolchains @zig_sdk//toolchain:linux_arm64_musl
+
+build --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
