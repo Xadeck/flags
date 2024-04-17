@@ -1,8 +1,10 @@
 # Minimalist C++20 library for command line flags parsing
 
-If you need to parse command line arguments in your project, and you want a
-simple syntax and lightweight library, and you can use C++20 in your project,
-then this project ma
+This library is for you if:
+
+* you need to parse command line arguments in your project,
+* you want a simple syntax and lightweight library,
+* you can use C++20 in your project,
 
 An example is worth a thousand words. Here is the syntax for defining and
 parsing flags.
@@ -90,7 +92,8 @@ your main file. You can use an ordered map associating flag names to their
 description.  If you want to make sure it contains an entry for each flags, you
 can use the introspection API.
 
-That can be useful for producing a list of completions.
+The introspection API is also useful for producing a list of completions for
+shell integration of your binary.
 
 ### About validation
 
@@ -102,6 +105,8 @@ For example, if you have a `Flag<"--port", int>`, and you try to parse:
 1. `--port not_an_int` or
 2. `--port`
 2. `--port --other_flag`
+
+Then you will get a parsing error.
 
 There is no other validation, such as mandatory flags, checking that a value is
 in a range, or that some flags are mutually exclusive.  Such validation is best
@@ -176,6 +181,9 @@ That struct *must* have only fields of the `Flag` template type [^3] -notice
 the singular- whose first parameter is a string matching what will be used on
 the command line, and second parameter is a type.
 
+[^3]: not respecting this constraint so is undefined behavior, most likely a
+    crash.
+
 ```c++
 struct Flags : xdk::Flags<Flags> {
   Flag<"--port", int> port;
@@ -195,10 +203,9 @@ struct Flags : xdk::Flags<Flags> {
 };
 ```
 
-You can use any moveable type that supports `operator>>(std::istream&)`, and in
-addition any `std::vector` of such a type, and any `std::optional` of such a
-type, more on this later. Non copyable and non default constructible types are
-usable.
+You can use any moveable type that supports `operator>>(std::istream&)`, any
+`std::vector` of such a type, and any `std::optional` of such a type. Non
+copyable and non default constructible types are usable.
 
 The `Flag` class accepts an optional third template parameter, which is also a
 string and defaults to the value of the first parameter. This can be used to
@@ -285,7 +292,29 @@ reasonable default value, use a `std::optional` for the flag's type, and check
 that is has a value.
 
 If you need, to be able to determine if a flag was specified in the command
-line, and yet provide a default value.
+line, and yet provide a default value, then use the `std::optional::value_or`
+method.
+
+```c++
+struct Flags : xdk::Flags<Flags> {
+  Flag<"--port", std::optional<int>, "-p"> port;
+  // ...
+};
+
+auto [flags, _, errors] = Flags::Parse(argc, argv);
+if (!flags.port.has_value()) std::cout << "Using default port 8080.\n";
+
+int port = flags.port.value_or(8080);
+```
+
+If you can use C++ 32, you can combine the above into:
+
+```c++
+int port = flags.port.or_else([]() {
+   std::cout << "Using default port 8080.\n";
+   return 8080;
+});
+```
 
 ### Reporting errors.
 
