@@ -18,4 +18,3 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(xdk/flags)
-

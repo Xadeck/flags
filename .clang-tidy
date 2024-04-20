@@ -102,4 +102,3 @@ CheckOptions:
   modernize-use-transparent-functors.SafeMode: 'false'
 SystemHeaders:   false
 ...
-
