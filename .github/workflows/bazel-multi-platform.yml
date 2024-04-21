@@ -31,7 +31,7 @@ jobs:
           repository-cache: true
 
       - name: Build
-        run: bazel build -c ${{ matrix.build_type }}
+        run: bazel build -c ${{ matrix.build_type }} ...
 
       - name: Test
-        run: bazel test -c ${{ matrix.build_type }}
+        run: bazel test -c ${{ matrix.build_type }} ...
