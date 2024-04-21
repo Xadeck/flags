@@ -1,6 +1,8 @@
 # Minimalist C++20 library for command line flags parsing
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![img](https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms/badge.svg)]([https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms](https://github.com/Xadeck/flags/actions/workflows/cmake-multi-platform.yml))
+
 
 This library is for you if:
 
