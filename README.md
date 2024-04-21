@@ -1,5 +1,7 @@
 # Minimalist C++20 library for command line flags parsing
 
+[![img](https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms/badge.svg)]([https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms](https://github.com/Xadeck/flags/actions/workflows/cmake-multi-platform.yml))
+
 This library is for you if:
 
 * you need to parse command line arguments in your project,
