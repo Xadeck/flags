@@ -1,12 +1,14 @@
 language: cpp
+
 compiler:
   - clang
   - gcc
+
 os:
   - linux
-config:
-  - debug
-  - opt
+  - osx
+
+dist: xenial
 
 before_install:
   - sudo apt install apt-transport-https curl gnupg -y
@@ -17,5 +19,5 @@ before_install:
   - sudo apt-get -y install bazel
 
 script:
-  - bazel build ...
-  - bazel test ...
+  - bazel test -c dbg ...
+  - bazel test -c opt ...
