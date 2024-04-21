@@ -1,3 +1,7 @@
+---
+git:
+  depth: 3
+
 language: cpp
 
 compiler:
@@ -9,6 +13,12 @@ os:
   - osx
 
 dist: xenial
+osx_image: xcode14.2
+
+addons:
+  homebrew:
+    packages:
+    - bazel
 
 before_install:
   - sudo apt install apt-transport-https curl gnupg -y
