@@ -1,7 +1,8 @@
 # Minimalist C++20 library for command line flags parsing
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![GitHub Actions: CMake ](https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms/badge.svg)](https://github.com/Xadeck/flags/actions/workflows/cmake-multi-platform.yml)
+[![GitHub Actions: CMake](https://github.com/Xadeck/flags/workflows/CMake%20on%20multiple%20platforms/badge.svg)](https://github.com/Xadeck/flags/actions/workflows/cmake-multi-platform.yml)
+[![GitHub Actions: Bazel](https://github.com/Xadeck/flags/workflows/Bazel%20on%20multiple%20platforms/badge.svg)](https://github.com/Xadeck/flags/actions/workflows/bazel-multi-platform.yml)
 ![Travis (.com)](https://img.shields.io/travis/com/Xadeck/flags?style=flat&logo=travis&logoColor=%23949DA5&label=Travis%20CI%20build&labelColor=%233D464E&link=https%3A%2F%2Fapp.travis-ci.com%2Fgithub%2FXadeck%2Fflags)
 
 
