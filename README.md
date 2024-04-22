@@ -65,21 +65,18 @@ string.
 
 The following typical features for command line flags are supported:
 
-* Supports long/short forms for flags e.g. `--long/-l` via aliases [^1].
+* Supports long/short forms for flags e.g. `--long/-l` via aliases.
 * Supports repeated flags, e.g. `-l one -l two -l three` as a `{"one", "two", "three"}`.
 * Supports optional flags.
 * Supports default flag values.
 * Supports `--` to stop flag parsing
-* Reports invalid values that can be streamed into the flag's type [^2].
+* Reports invalid values that can't be streamed into the flag's type.
 * Reports missing flag values.
-
-[^1]: aliases are more general.
-[^2]: special case for `char`.
 
 The following other typical features flags are **not** supported:
 
 * No mechanism for help strings.
-* No mechanism for validation.
+* No mechanism for complex validation.
 * No mechanism for commands and subcommands.
 * No support for merging of flags, e.g. `-l -t` written as `-lt`.
 * No support for `=` i.e. `--flag=value`.
@@ -187,7 +184,7 @@ That struct *must* have only fields of the `Flag` template type [^3] -notice
 the singular- whose first parameter is a string matching what will be used on
 the command line, and second parameter is a type.
 
-[^3]: not respecting this constraint so is undefined behavior, most likely a
+[^3]: not respecting this constraint is undefined behavior, most likely a
     crash.
 
 ```c++
@@ -266,9 +263,9 @@ later on this page.
 ### Flags usage
 
 Once you have the `flags` instance, you access the values of command line
-arguments simply through its fields, via the `value`. They implicitly convert
-to the underlying type, and they support the `->` operator, so all forms below
-are valid:
+arguments simply through its fields, via the `value` accessor. `Flag<>`
+implicitly converts to the underlying type, and supports the `->` operator, so
+all forms below are valid:
 
 ```c++
   struct Flags : xdk::Flags {
@@ -322,7 +319,9 @@ if (!flags.port.has_value()) std::cout << "Using default port 8080.\n";
 int port = flags.port.value_or(8080);
 ```
 
-If you can use C++ 23, you can combine the above into:
+If you can use C++ 23's
+[`or_else`](https://en.cppreference.com/w/cpp/utility/optional/or_else), you
+can combine the above into:
 
 ```c++
 int port = flags.port.or_else([]() {
@@ -333,7 +332,7 @@ int port = flags.port.or_else([]() {
 
 ### Reporting errors.
 
-When parsing the flags with as follows:
+When parsing the flags as follows:
 
 ```c++
 int main(int arc, char** argv) {
@@ -343,7 +342,7 @@ int main(int arc, char** argv) {
 
 The `errors` object is akin to an `std::vector` with a convenient
 conversion-to-boolean operator, and output-to-stream operator. This allows for
-a minimal approach to report errors if any.
+a minimal approach to report errors.
 
 ```c++
   if (errors) { // of `if (!errors.empty()) `
@@ -381,12 +380,10 @@ returned `args` object with its flags, updating the existing `args` and
 `errors`. Here is a pseudo-code, illustrating the approach:
 
 ```c++
-
-  struct GitFlags : Flags<GitFlags> {
+ GitFlags : Flags<GitFlags> {
     Flag<"-v", bool> verbose{false};
   };
 
-  const char* argv[]       = {"git", "status", "-v", "-s", "file.txt"};
   auto [git, args, errors] = GitFlags::Parse(argv, false);
 
   if (args[0] == "status"sv) {
@@ -409,3 +406,15 @@ returned `args` object with its flags, updating the existing `args` and
     // ..
   }
 ```
+
+## Introspection API
+
+You can use the `Flags::FlagInfos()` method on your `Flags` type to get a
+vector of `FlagInfo` objects, which are structs with 3 fields: `name`, `alias`
+and `type`. The first two ones are clear. The last one is a
+[`std::type_info`](https://en.cppreference.com/w/cpp/types/type_info) pointer
+describing a flag's underlying type.
+
+This API allows you to store documentation for command line flags into a map,
+or a set of external files, or what ever you like, and implement a test that
+all flags have a corresponding docstring, and conversely.
