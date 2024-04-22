@@ -17,11 +17,23 @@
 namespace xdk {
 
 struct FlagInfo {
+  // 1. Unknown flag
+  //    `pos`: the index of argument that is not a flag
+  //    `arg`: points to `argv[pos]` and starts by `-`
+  //    `val`: points to `kUnknown`.
+  // 2. Invalid flag value
+  //    `pos`: the index of argument that is the flag
+  //    `arg`: points to `argv[pos]` and is the name of the flag
+  //    `val`: points to `argv[pos+1]` and is the string not valid as a value
+  // 3. Missing flag value
+  //    `pos`: as in previous case
+  //    `arg`: as in previous case
+  //    `val`: points to `nullptr`
   struct Error {
     static inline const char kUnknown[] = "unknown";
 
     int         pos = 0;
-    const char* arg = nullptr;
+    const char* arg = nullptr;  // non-null for errors returnes by `Flags::Parse`.
     const char* val = kUnknown;
 
     friend bool operator==(const FlagInfo::Error&, const FlagInfo::Error&) = default;

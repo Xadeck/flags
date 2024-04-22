@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
   }
 
+  std::cout << "Running on port " << flags.port.value << `\n';
   // ...
 
   return EXIT_SUCCESS;
@@ -75,7 +76,7 @@ The following typical features for command line flags are supported:
 [^1]: aliases are more general.
 [^2]: special case for `char`.
 
-The following other features flags are **not** supported:
+The following other typical features flags are **not** supported:
 
 * No mechanism for help strings.
 * No mechanism for validation.
@@ -196,10 +197,10 @@ struct Flags : xdk::Flags<Flags> {
 };
 ```
 
-The string must not be empty, must start with a `-` and not be `--`. This is
-enforced at compile-time with a static assert.  The name of the field does not
-need to match the flag, so you can use a descriptive variable name, and a short
-flag name.
+The string must not be empty, must start with a `-` and not be the exact string
+`--`. This is enforced at compile-time with a static assert.  The name of the
+field does not need to match the flag, so you can use a descriptive variable
+name, and a short flag name.
 
 ```c++
 struct Flags : xdk::Flags<Flags> {
@@ -213,9 +214,9 @@ You can use any moveable type that supports `operator>>(std::istream&)`, any
 copyable and non default constructible types are usable.
 
 The `Flag` class accepts an optional third template parameter, which is also a
-string and defaults to the value of the first parameter. This can be used to
-specify an *alias* for the flag. The typical usage is to define a short version
-of the flag:
+string, must also not be empty, start with a `-` and not be the exact string
+`--`.  This can be used to specify an *alias* for the flag. The typical
+usage is to define a short version of the flag:
 
 ```c++
 struct Flags : xdk::Flags<Flags> {
@@ -223,6 +224,8 @@ struct Flags : xdk::Flags<Flags> {
   // ...
 };
 ```
+
+If not specified, this parmater defaults to the value of the first parameter.
 
 Finally, the `Flag` constructor supports all constructors for the associated
 type, so you can initialize the field with a default value:
@@ -237,8 +240,8 @@ struct Flags : xdk::Flags<Flags> {
 ### Command line parsing
 
 Once you have defined your `Flags` class, you can use its `Parse()` method to
-get an instance of it initialized from command line arguments. It returns a
-tuple of 3 elements, that you typically destructure like this:
+get an instance, initialized from command line arguments. It returns a tuple of
+3 elements, that you typically destructure like this:
 
 ```c++
 int main(int arc, char** argv) {
@@ -246,12 +249,19 @@ int main(int arc, char** argv) {
   auto [flags, args, errors] = Flags::Parse(argc, argv);
 ```
 
-Parsing *always* returns an instance of your `Flags` type. If `errors` is
-empty, the fields of `flags` have all been properly initialized from the
-command line arguments, and `args` contains all the arguments that were neither
-flag names nor flag values. If `errors` is not empty, it indicates with flags
-are invalid, and the corresponding fields have an undefined value. More on
-errors handling later.
+The first element is an instance of your `Flags` class. The second element is a
+`std::vector<const char*>`.   The third element is akin to a vector of error
+tuples, which will be described later.  Parsing *always* returns an instance of
+your `Flags` type.
+
+* If `errors` is empty, the fields of `flags` have all been properly
+  initialized from the command line arguments, and `args` contains all the
+arguments that were neither flag names nor flag values. If your application
+doesn't support positional arguments, simply report and error if `args` is not
+empty.
+* If `errors` is not empty, flags are invalid, and the corresponding fields
+  have an undefined value. You must report errors to the user, as described
+later on this page.
 
 ### Flags usage
 
@@ -298,7 +308,7 @@ that is has a value.
 
 If you need, to be able to determine if a flag was specified in the command
 line, and yet provide a default value, then use the `std::optional::value_or`
-method.
+method, as in the example below.
 
 ```c++
 struct Flags : xdk::Flags<Flags> {
@@ -312,7 +322,7 @@ if (!flags.port.has_value()) std::cout << "Using default port 8080.\n";
 int port = flags.port.value_or(8080);
 ```
 
-If you can use C++ 32, you can combine the above into:
+If you can use C++ 23, you can combine the above into:
 
 ```c++
 int port = flags.port.or_else([]() {
@@ -323,19 +333,79 @@ int port = flags.port.or_else([]() {
 
 ### Reporting errors.
 
-TODO: Use the bool operator and default output stream operator.
+When parsing the flags with as follows:
 
-TODO: Describe the format and semantic (invalid, missing, unknown) of errors.
+```c++
+int main(int arc, char** argv) {
+  // ...
+  auto [flags, args, errors] = Flags::Parse(argc, argv);
+```
+
+The `errors` object is akin to an `std::vector` with a convenient
+conversion-to-boolean operator, and output-to-stream operator. This allows for
+a minimal approach to report errors if any.
+
+```c++
+  if (errors) { // of `if (!errors.empty()) `
+    std::cerr << "Invalid arguments:\n" << errors;
+    return EXIT_FAILURE;
+  }
+```
+
+For a custom reporting of errors, traverse the `errors` struct, which has 3
+fields `pos`, `arg` and `val`. The last one distinguishes the error cases:
+
+1. unknown flag: `val` equals to `FlagInfo::Error::kUnknown`
+2. invalid flag value: `val` equals to a string that can't be parsed into the given flag's type
+3. missing flag value: `val` equals to `nullptr`
+
+In each case, `pos` is the index in `argv` of the flag causing an error, and
+`arg` is `argv[pos]`.
 
 ### Ignoring unkwnown flags.
 
 The `Parse()` method takes an optional third argument to indicate that unknown
 flags are not errors, and are simply added to `args` instead.
 
-### Re-usable flag classes.
+### Multiple flag classes.
 
-TODO: copy the `flags_test.cc` example.
+This pattern is useful to implement a sub-command mechanism - e.g. `git status`
+or `git commit`, where the first element of `args` is a command. In such a
+case, you have flags for the main command (`git`) and flags for each possible
+sub-command (`status` or `commit`).
 
-### Anti-patterns
+To handle such a case, use multiple `Flags` classes, one for the main command
+and one for each sub-command. Parse `argv` using the first one and ignoring
+unknown flags. Then identify the subcommand using `args[0]`, and parse the
+returned `args` object with its flags, updating the existing `args` and
+`errors`. Here is a pseudo-code, illustrating the approach:
 
-TODO: Passing flags to libraries.
+```c++
+
+  struct GitFlags : Flags<GitFlags> {
+    Flag<"-v", bool> verbose{false};
+  };
+
+  const char* argv[]       = {"git", "status", "-v", "-s", "file.txt"};
+  auto [git, args, errors] = GitFlags::Parse(argv, false);
+
+  if (args[0] == "status"sv) {
+    struct StatusFlags : Flags<StatusFlags> {
+      Flag<"-s", bool> short_format{false};
+    };
+    auto status = StatusFlags::Parse(args, errors);
+    // ..
+    // use `status.short_format` and `git.verbose` flags
+    // ..
+  }
+
+  if (args[0] == "commit"sv) {
+    struct CommitFlags : Flags<CommitFlags> {
+      Flag<"-a", bool> all{false};
+    };
+    auto commit = CommitFlags::Parse(args, errors);
+    // ..
+    // use `commit.all` and `git.verbose` flags
+    // ..
+  }
+```

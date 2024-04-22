@@ -18,6 +18,7 @@ std::ostream& operator<<(std::ostream& os, const FlagInfo::Error& error) {
 }
 
 namespace {
+using namespace std::literals;  // NOLINT
 using ::testing::ElementsAre;
 using ::testing::Eq;
 using ::testing::IsEmpty;
@@ -176,6 +177,50 @@ TEST(FlagsTest, AdvancedDemo) {
   }
 }
 
+TEST(FlagsTest, ErrorIndex) {
+  struct TestFlags : Flags<TestFlags> {
+    Flag<"--known", int> count;
+  };
+  using Error = FlagInfo::Error;
+  {  // Unknown flag
+    const char* argv[] = {
+        "--known",    // 0
+        "3",          // 1
+        "--unknown",  // 2
+    };
+    auto [_, args, errors] = TestFlags::Parse(argv);
+    ASSERT_THAT(args, IsEmpty());
+    ASSERT_THAT(errors,
+                ElementsAre(Error{.pos = 2, .arg = "--unknown", .val = FlagInfo::Error::kUnknown}));
+  }
+  {  // Unknown flag ignored
+    const char* argv[] = {
+        "--known",    // 0
+        "3",          // 1
+        "--unknown",  // 2
+    };
+    auto [_, args, errors] = TestFlags::Parse(argv, false);
+    ASSERT_THAT(args, ElementsAre("--unknown"));
+  }
+  {  // Invalid flag value
+    const char* argv[] = {
+        "--known",  // 0
+        "three",    // 1
+    };
+    auto [_, args, errors] = TestFlags::Parse(argv);
+    ASSERT_THAT(args, IsEmpty());
+    ASSERT_THAT(errors, ElementsAre(Error{.pos = 0, .arg = "--known", .val = "three"}));
+  }
+  {  // Missing flag value
+    const char* argv[] = {
+        "--known",  // 0
+    };
+    auto [_, args, errors] = TestFlags::Parse(argv);
+    ASSERT_THAT(args, IsEmpty());
+    ASSERT_THAT(errors, ElementsAre(Error{.pos = 0, .arg = "--known", .val = nullptr}));
+  }
+}
+
 TEST(FlagsTest, IncompleteTerminalArgs) {
   struct TestFlags : Flags<TestFlags> {
     Flag<"-n", int>  count;
@@ -193,6 +238,27 @@ TEST(FlagsTest, IncompleteTerminalArgs) {
     auto [flags, args, errors] = TestFlags::Parse(argv);
     ASSERT_THAT(args, IsEmpty());
     ASSERT_THAT(errors, IsEmpty());
+  }
+}
+
+TEST(FlagsTest, SubcommandExample) {
+  struct GitFlags : Flags<GitFlags> {
+    Flag<"-v", bool> verbose{false};
+  };
+
+  const char* argv[]       = {"git", "status", "-v", "-s", "file.txt"};
+  auto [git, args, errors] = GitFlags::Parse(argv, false);
+
+  ASSERT_THAT(errors, IsEmpty());
+  ASSERT_TRUE(git.verbose);
+  if (args[0] == "status"sv) {
+    struct StatusFlags : Flags<StatusFlags> {
+      Flag<"-s", bool> short_format{false};
+    };
+    auto status = StatusFlags::Parse(args, errors);
+    ASSERT_THAT(errors, IsEmpty());
+    ASSERT_TRUE(status.short_format);
+    ASSERT_THAT(args, ElementsAre("file.txt"));
   }
 }
 
