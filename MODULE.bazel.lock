@@ -1425,30 +1425,9 @@
         "recordedRepoMappingEntries": []
       }
     },
-    "@@bazel_tools//tools/test:extensions.bzl%remote_coverage_tools_extension": {
-      "general": {
-        "bzlTransitiveDigest": "l5mcjH2gWmbmIycx97bzI2stD0Q0M5gpDc0aLOHKIm8=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "remote_coverage_tools": {
-            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
-            "ruleClassName": "http_archive",
-            "attributes": {
-              "sha256": "7006375f6756819b7013ca875eab70a541cf7d89142d9c511ed78ea4fefa38af",
-              "urls": [
-                "https://mirror.bazel.build/bazel_coverage_output_generator/releases/coverage_output_generator-v2.6.zip"
-              ]
-            }
-          }
-        },
-        "recordedRepoMappingEntries": []
-      }
-    },
     "@@rules_foreign_cc~//foreign_cc:extensions.bzl%ext": {
       "general": {
-        "bzlTransitiveDigest": "QbxK92//k6c63fpMer2Lkk6224s9gwYoVFFS6mdkucI=",
+        "bzlTransitiveDigest": "0/GTFp9D0gb6hOu9jXXnaWa5hPbzPpIzLVxITdJTwvo=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1719,7 +1698,7 @@
     },
     "@@rules_java~//java:extensions.bzl%toolchains": {
       "general": {
-        "bzlTransitiveDigest": "tJHbmWnq7m+9eUBnUdv7jZziQ26FmcGL9C5/hU3Q9UQ=",
+        "bzlTransitiveDigest": "0N5b5J9fUzo0sgvH4F3kIEaeXunz4Wy2/UtSFV/eXUY=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -2224,7 +2203,7 @@
     },
     "@@rules_python~//python/extensions:python.bzl%python": {
       "general": {
-        "bzlTransitiveDigest": "o0WIKfdQRSZd/9+sY+LDTrUuYozMBFuYsL85uwJYKk8=",
+        "bzlTransitiveDigest": "hcJ2K4XvZ3hi0G4g5MkUEs8xowZlCfrgq3JX4dyipWY=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

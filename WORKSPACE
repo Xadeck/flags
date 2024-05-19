@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-HERMETIC_CC_TOOLCHAIN_VERSION = "v3.0.1"
+HERMETIC_CC_TOOLCHAIN_VERSION = "v3.1.0"
 
 http_archive(
     name = "hermetic_cc_toolchain",
